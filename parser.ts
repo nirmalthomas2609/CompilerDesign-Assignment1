@@ -50,10 +50,10 @@ export function traverseExpr(c : TreeCursor, s : string) : Expr {
       const callName = s.substring(c.from, c.to);
       let argList: Array<Expr> = [];
       c.nextSibling(); // go to arglist
-      console.log("As part of parsing the expression 1 at " + s.substring(c.from, c.to));
+      // console.log("As part of parsing the expression 1 at " + s.substring(c.from, c.to));
       c.firstChild(); //Open bracket
       c.nextSibling(); //First argument expression
-      console.log("Supposedly the first argument expression " + s.substring(c.from, c.to));
+      // console.log("Supposedly the first argument expression " + s.substring(c.from, c.to));
       while(s.substring(c.from, c.to) != ')'){
         argList.push(traverseExpr(c, s));
         c.nextSibling();

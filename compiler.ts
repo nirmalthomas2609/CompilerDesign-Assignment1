@@ -66,6 +66,9 @@ function codeGenExpr(expr : Expr, definedVars: Set<unknown>, assignedVars: Set<u
       const arg2Stmts = codeGenExpr(expr.arg2, definedVars, assignedVars);
       return [...arg1Stmts, ...arg2Stmts].concat([`(call $${expr.name})`]);
     case "num":
+      if (!Number.isInteger(expr.value)){
+        throw new Error("CompileError: Invalid Literal / ParseError");
+      }
       return ["(i32.const " + expr.value + ")"];
     case "id":
       if (!definedVars.has(expr.name) || !assignedVars.has(expr.name)){
