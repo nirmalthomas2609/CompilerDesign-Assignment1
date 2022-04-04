@@ -38,7 +38,8 @@ export function traverseExpr(c : TreeCursor, s : string) : Expr {
         throw new Error("UnaryOperation not recognized: " + s.substring(c.from, c.to) + " / ParseError");
       }
       c.nextSibling();
-      if (Number.isNaN(s.substring(c.from, c.to)) || c.type.name == "UnaryExpression"){ 
+      //If the argument is not a string or if it is a unary expression
+      if (isNaN(Number(s.substring(c.from, c.to))) || c.type.name == "UnaryExpression"){ 
         throw new Error("ParseError: Unary operation not recognized");
       }
       const arg = traverseExpr(c, s);
@@ -100,7 +101,14 @@ export function traverseStmt(c : TreeCursor, s : string) : Stmt {
       const name = s.substring(c.from, c.to);
       c.nextSibling(); // go to equals
       c.nextSibling(); // go to value
+      const expression_string = s.substring(c.from, c.to); //Storing the expression string for comparison at a later stage
       const value = traverseExpr(c, s);
+
+      //Basically handles the case of x = 10, 10 and so on where there are more than a single sibling affter the = node in assignment statements
+      c.nextSibling(); //Will remain at the same node in the ideal case when there are no more siblings
+      //Trying to handle the case where the input expression value contains something other than a single argument
+      if (expression_string !== s.substring(c.from, c.to)) throw new Error("ParseError: Invalid assignment");
+
       c.parent();
       return {
         tag: "define",
@@ -109,7 +117,15 @@ export function traverseStmt(c : TreeCursor, s : string) : Stmt {
       }
     case "ExpressionStatement":
       c.firstChild();
+      const expr_string = s.substring(c.from, c.to); //Storing the expression string for comparison at a later stage
       const expr = traverseExpr(c, s);
+
+
+      //Basically handles the case of x = 10, 10 and so on where there are more than a single sibling affter the = node in assignment statements
+      c.nextSibling(); //Will remain at the same node in the ideal case when there are no more siblings
+      //Trying to handle the case where the input expression value contains something other than a single argument
+      if (expr_string !== s.substring(c.from, c.to)) throw new Error("ParseError: Invalid expression");
+      
       c.parent(); // pop going into stmt
       return { tag: "expr", expr: expr }
     default:
