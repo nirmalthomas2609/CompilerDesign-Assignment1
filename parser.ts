@@ -38,6 +38,9 @@ export function traverseExpr(c : TreeCursor, s : string) : Expr {
         throw new Error("UnaryOperation not recognized: " + s.substring(c.from, c.to) + " / ParseError");
       }
       c.nextSibling();
+      if (Number.isNaN(s.substring(c.from, c.to)) || c.type.name == "UnaryExpression"){ 
+        throw new Error("ParseError: Unary operation not recognized");
+      }
       const arg = traverseExpr(c, s);
       c.parent();
       return {
